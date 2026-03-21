@@ -5,7 +5,7 @@ import '../../../core/theme/app_gradients.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../shared/icons/app_icons.dart';
 
-/// Dock com **FAB central** (Planos): gradiente da marca, demais itens com indicador refinado.
+/// Dock estilo “Divine”: 4 itens + **FAB central (Bíblia)** — Leitura, Oração, Estudos, SOS.
 class AppBottomBar extends StatelessWidget {
   const AppBottomBar({
     super.key,
@@ -16,26 +16,25 @@ class AppBottomBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onSelect;
 
-  static const _labels = ['Início', 'Bíblia', 'Planos', 'Comunidade', 'Perfil'];
+  static const _labels = ['Leitura', 'Oração', 'Estudos', 'SOS'];
 
+  /// 0 Leitura, 1 Oração, 2 **Bíblia (FAB)**, 3 Estudos, 4 SOS.
   static const _fabIndex = 2;
-  static const _fabSize = 56.0;
-  static const _fabOverhang = 26.0;
+  static const _fabSize = 58.0;
+  static const _fabOverhang = 24.0;
 
-  IconData _icon(int i, bool on) {
-    switch (i) {
+  IconData _icon(int shellIndex, bool on) {
+    switch (shellIndex) {
       case 0:
-        return AppLucideNav.home(on);
+        return AppLucideNav.reading(on);
       case 1:
-        return AppLucideNav.bible(on);
-      case 2:
-        return AppLucideNav.plans(on);
+        return AppLucideNav.prayerHeart(on);
       case 3:
-        return AppLucideNav.community(on);
+        return AppLucideNav.studiesNav(on);
       case 4:
-        return AppLucideNav.profile(on);
+        return AppLucideNav.sosNav(on);
       default:
-        return AppLucideNav.home(on);
+        return AppLucideNav.reading(on);
     }
   }
 
@@ -47,11 +46,10 @@ class AppBottomBar extends StatelessWidget {
     final isLight = br == Brightness.light;
 
     final barPadBottom = AppSpacing.s8 + bottom;
-    // Área mínima do conteúdo: traço (9) + ícone (até 24) + gap (6) + label (~11) ≈ 58.
-    const rowMinHeight = 58.0;
+    const rowMinHeight = 62.0;
 
     return SizedBox(
-      height: _fabOverhang + AppSpacing.s12 + rowMinHeight + barPadBottom,
+      height: _fabOverhang + AppSpacing.s8 + rowMinHeight + barPadBottom,
       child: Stack(
         clipBehavior: Clip.none,
         alignment: Alignment.topCenter,
@@ -65,10 +63,17 @@ class AppBottomBar extends StatelessWidget {
               borderRadius: const BorderRadius.vertical(
                 top: Radius.circular(AppRadii.sheet),
               ),
-              child: Container(
+              child: DecoratedBox(
                 decoration: BoxDecoration(
                   color: scheme.surface,
-                  boxShadow: AppShadows.dockLift(),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withValues(alpha: isLight ? 0.08 : 0.35),
+                      blurRadius: 24,
+                      offset: const Offset(0, -4),
+                    ),
+                    ...AppShadows.dockLift(),
+                  ],
                   border: Border(
                     top: BorderSide(
                       color: isLight ? AppColors.lightBorder : AppColors.darkBorder,
@@ -76,49 +81,51 @@ class AppBottomBar extends StatelessWidget {
                     ),
                   ),
                 ),
-                padding: EdgeInsets.fromLTRB(
-                  AppSpacing.s8,
-                  AppSpacing.s12,
-                  AppSpacing.s8,
-                  barPadBottom,
-                ),
-                child: Row(
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    Expanded(
-                      child: _SideNavItem(
-                        label: _labels[0],
-                        icon: _icon(0, currentIndex == 0),
-                        selected: currentIndex == 0,
-                        onTap: () => onSelect(0),
+                child: Padding(
+                  padding: EdgeInsets.fromLTRB(
+                    AppSpacing.s6,
+                    AppSpacing.s8,
+                    AppSpacing.s6,
+                    barPadBottom,
+                  ),
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Expanded(
+                        child: _SideNavItem(
+                          label: _labels[0],
+                          icon: _icon(0, currentIndex == 0),
+                          selected: currentIndex == 0,
+                          onTap: () => onSelect(0),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _SideNavItem(
-                        label: _labels[1],
-                        icon: _icon(1, currentIndex == 1),
-                        selected: currentIndex == 1,
-                        onTap: () => onSelect(1),
+                      Expanded(
+                        child: _SideNavItem(
+                          label: _labels[1],
+                          icon: _icon(1, currentIndex == 1),
+                          selected: currentIndex == 1,
+                          onTap: () => onSelect(1),
+                        ),
                       ),
-                    ),
-                    const SizedBox(width: _fabSize + AppSpacing.s8),
-                    Expanded(
-                      child: _SideNavItem(
-                        label: _labels[3],
-                        icon: _icon(3, currentIndex == 3),
-                        selected: currentIndex == 3,
-                        onTap: () => onSelect(3),
+                      SizedBox(width: _fabSize + AppSpacing.s8),
+                      Expanded(
+                        child: _SideNavItem(
+                          label: _labels[2],
+                          icon: _icon(3, currentIndex == 3),
+                          selected: currentIndex == 3,
+                          onTap: () => onSelect(3),
+                        ),
                       ),
-                    ),
-                    Expanded(
-                      child: _SideNavItem(
-                        label: _labels[4],
-                        icon: _icon(4, currentIndex == 4),
-                        selected: currentIndex == 4,
-                        onTap: () => onSelect(4),
+                      Expanded(
+                        child: _SideNavItem(
+                          label: _labels[3],
+                          icon: _icon(4, currentIndex == 4),
+                          selected: currentIndex == 4,
+                          onTap: () => onSelect(4),
+                        ),
                       ),
-                    ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -128,12 +135,17 @@ class AppBottomBar extends StatelessWidget {
             left: 0,
             right: 0,
             child: Center(
-              child: _CenterPlanFab(
-                selected: currentIndex == _fabIndex,
-                gradient: br == Brightness.dark
-                    ? AppGradients.brandPrimaryDark
-                    : AppGradients.brandPrimary,
-                onTap: () => onSelect(_fabIndex),
+              child: AnimatedScale(
+                scale: currentIndex == _fabIndex ? 1.05 : 1.0,
+                duration: const Duration(milliseconds: 280),
+                curve: Curves.easeOutCubic,
+                child: _CenterBibleFab(
+                  selected: currentIndex == _fabIndex,
+                  gradient: br == Brightness.dark
+                      ? AppGradients.brandPrimaryDark
+                      : AppGradients.fabBible,
+                  onTap: () => onSelect(_fabIndex),
+                ),
               ),
             ),
           ),
@@ -143,8 +155,8 @@ class AppBottomBar extends StatelessWidget {
   }
 }
 
-class _CenterPlanFab extends StatelessWidget {
-  const _CenterPlanFab({
+class _CenterBibleFab extends StatelessWidget {
+  const _CenterBibleFab({
     required this.selected,
     required this.gradient,
     required this.onTap,
@@ -166,21 +178,21 @@ class _CenterPlanFab extends StatelessWidget {
         child: InkWell(
           onTap: onTap,
           customBorder: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(18),
+            borderRadius: BorderRadius.circular(20),
           ),
           child: Ink(
             decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(18),
+              borderRadius: BorderRadius.circular(20),
               gradient: gradient,
               boxShadow: AppShadows.fabHero(br, selected: selected),
               border: Border.all(
-                color: Colors.white.withValues(alpha: selected ? 0.42 : 0.28),
-                width: 1,
+                color: Colors.white.withValues(alpha: selected ? 0.5 : 0.32),
+                width: 1.2,
               ),
             ),
             child: Icon(
-              AppLucideNav.plans(true),
-              size: AppIconSizes.navActive + 1,
+              AppLucideNav.bible(true),
+              size: AppIconSizes.navActive + 2,
               color: Colors.white,
             ),
           ),
@@ -209,60 +221,65 @@ class _SideNavItem extends StatelessWidget {
     final textTheme = Theme.of(context).textTheme;
     final fg = selected
         ? scheme.primary
-        : scheme.onSurfaceVariant.withValues(alpha: 0.78);
+        : scheme.onSurfaceVariant.withValues(alpha: 0.72);
 
-    return InkWell(
-      onTap: onTap,
-      borderRadius: BorderRadius.circular(AppRadii.md),
-      splashColor: scheme.primary.withValues(alpha: 0.08),
-      highlightColor: Colors.transparent,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(
-              height: 9,
-              child: Align(
-                alignment: Alignment.topCenter,
-                child: AnimatedContainer(
-                  duration: const Duration(milliseconds: 220),
-                  curve: Curves.easeOutCubic,
-                  width: selected ? 22 : 0,
-                  height: 3,
-                  decoration: BoxDecoration(
-                    gradient: selected
-                        ? LinearGradient(
-                            colors: [
-                              scheme.primary,
-                              scheme.secondary,
-                            ],
-                          )
-                        : null,
-                    borderRadius: BorderRadius.circular(2),
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
+        onTap: onTap,
+        borderRadius: BorderRadius.circular(AppRadii.md),
+        splashColor: scheme.primary.withValues(alpha: 0.1),
+        highlightColor: Colors.transparent,
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 2, vertical: 4),
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              SizedBox(
+                height: 8,
+                child: Align(
+                  alignment: Alignment.topCenter,
+                  child: AnimatedContainer(
+                    duration: const Duration(milliseconds: 240),
+                    curve: Curves.easeOutCubic,
+                    width: selected ? 24 : 0,
+                    height: 3,
+                    decoration: BoxDecoration(
+                      gradient: selected
+                          ? LinearGradient(
+                              colors: [
+                                scheme.primary,
+                                scheme.secondary,
+                              ],
+                            )
+                          : null,
+                      borderRadius: BorderRadius.circular(2),
+                    ),
                   ),
                 ),
               ),
-            ),
-            Icon(
-              icon,
-              size: selected ? AppIconSizes.navActive : AppIconSizes.nav,
-              color: fg,
-            ),
-            const SizedBox(height: AppSpacing.s6),
-            Text(
-              label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: textTheme.labelLarge?.copyWith(
-                fontSize: 10,
-                fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
-                letterSpacing: 0.1,
+              Icon(
+                icon,
+                size: selected ? AppIconSizes.navActive + 1 : AppIconSizes.nav,
                 color: fg,
-                height: 1.05,
               ),
-            ),
-          ],
+              const SizedBox(height: 5),
+              Text(
+                label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                textAlign: TextAlign.center,
+                style: textTheme.labelLarge?.copyWith(
+                  fontSize: 10,
+                  fontWeight: selected ? FontWeight.w800 : FontWeight.w500,
+                  letterSpacing: 0.02,
+                  color: fg,
+                  height: 1.05,
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );

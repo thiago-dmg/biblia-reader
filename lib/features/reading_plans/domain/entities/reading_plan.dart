@@ -15,6 +15,7 @@ class ReadingPlan extends Equatable {
     required this.completedChapterKeys,
     required this.sessions,
     this.paused = false,
+    this.serverCompletedChapters,
   });
 
   final String id;
@@ -27,7 +28,11 @@ class ReadingPlan extends Equatable {
   final List<ReadingSession> sessions;
   final bool paused;
 
-  int get completedCount => completedChapterKeys.length;
+  /// Quando preenchido (ex.: plano vindo da API), prevalece sobre o tamanho de [completedChapterKeys].
+  final int? serverCompletedChapters;
+
+  int get completedCount =>
+      serverCompletedChapters ?? completedChapterKeys.length;
   int get remainingChapters => (totalChaptersInScope - completedCount).clamp(0, totalChaptersInScope);
 
   ReadingPlan copyWith({
@@ -40,6 +45,7 @@ class ReadingPlan extends Equatable {
     Set<String>? completedChapterKeys,
     List<ReadingSession>? sessions,
     bool? paused,
+    int? serverCompletedChapters,
   }) {
     return ReadingPlan(
       id: id ?? this.id,
@@ -51,6 +57,7 @@ class ReadingPlan extends Equatable {
       completedChapterKeys: completedChapterKeys ?? this.completedChapterKeys,
       sessions: sessions ?? this.sessions,
       paused: paused ?? this.paused,
+      serverCompletedChapters: serverCompletedChapters ?? this.serverCompletedChapters,
     );
   }
 
@@ -65,5 +72,6 @@ class ReadingPlan extends Equatable {
         completedChapterKeys,
         sessions,
         paused,
+        serverCompletedChapters,
       ];
 }

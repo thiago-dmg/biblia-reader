@@ -18,12 +18,12 @@ class StudiesHomeScreen extends StatelessWidget {
           _StudyTile(
             title: 'Fé no dia a dia',
             category: 'Crescimento',
-            onTap: () => context.push('/home/studies/study-1'),
+            onTap: () => context.push('/studies/study-1'),
           ),
           _StudyTile(
             title: 'Salmos — lamentos',
             category: 'Antigo Testamento',
-            onTap: () => context.push('/home/studies/study-2'),
+            onTap: () => context.push('/studies/study-2'),
           ),
         ],
       ),

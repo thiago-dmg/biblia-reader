@@ -1,17 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../../core/auth/biblia_auth.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../shared/icons/app_icons.dart';
+import '../../../../shared/widgets/name_avatar.dart';
 
-class ProfileScreen extends StatelessWidget {
+class ProfileScreen extends ConsumerWidget {
   const ProfileScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
     final theme = Theme.of(context);
     final scheme = theme.colorScheme;
     final br = theme.brightness;
+    final auth = ref.watch(authProvider).valueOrNull;
+    final displayName = auth?.displayName.isNotEmpty == true ? auth!.displayName : 'Convidado';
+    final subtitle = auth?.isAuthenticated == true ? 'Conta ativa' : 'Sem login — dados locais';
 
     return Scaffold(
       appBar: AppBar(
@@ -36,23 +42,18 @@ class ProfileScreen extends StatelessWidget {
               padding: const EdgeInsets.all(AppSpacing.s24),
               child: Column(
                 children: [
-                  CircleAvatar(
+                  NameAvatar(
+                    name: displayName,
                     radius: 48,
-                    backgroundColor: scheme.primary.withValues(alpha: 0.12),
-                    child: Icon(
-                      AppLucideUi.user,
-                      size: 48,
-                      color: scheme.primary,
-                    ),
                   ),
                   const SizedBox(height: AppSpacing.s12),
                   Text(
-                    'Seu nome',
+                    displayName,
                     style: theme.textTheme.headlineSmall,
                   ),
                   const SizedBox(height: AppSpacing.s6),
                   Text(
-                    '@usuario',
+                    subtitle,
                     style: theme.textTheme.bodyMedium?.copyWith(
                       color: scheme.onSurface.withValues(alpha: 0.5),
                     ),
@@ -75,14 +76,27 @@ class ProfileScreen extends StatelessWidget {
             theme: theme,
           ),
           const SizedBox(height: AppSpacing.s6),
-          _ProfileRow(
-            icon: AppLucideUi.logOut,
-            title: 'Sair',
-            onTap: () => context.go('/auth/login'),
-            scheme: scheme,
-            theme: theme,
-            emphasize: true,
-          ),
+          if (auth?.isAuthenticated == true)
+            _ProfileRow(
+              icon: AppLucideUi.logOut,
+              title: 'Sair',
+              onTap: () async {
+                await ref.read(authProvider.notifier).logout();
+                if (context.mounted) context.go('/auth/login');
+              },
+              scheme: scheme,
+              theme: theme,
+              emphasize: true,
+            )
+          else
+            _ProfileRow(
+              icon: AppLucideUi.user,
+              title: 'Entrar ou criar conta',
+              onTap: () => context.push('/auth/login'),
+              scheme: scheme,
+              theme: theme,
+              emphasize: true,
+            ),
         ],
       ),
     );

@@ -16,6 +16,23 @@ abstract final class AppLucideNav {
 
   static IconData profile(bool on) =>
       on ? LucideIcons.userRound500 : LucideIcons.userRound300;
+
+  /// Sala de oração — ícone de mãos (substitui coração no estilo Divine).
+  static IconData prayer(bool on) =>
+      on ? LucideIcons.handHeart500 : LucideIcons.handHeart300;
+
+  /// Barra inferior — Oração (coração), como no layout de referência.
+  static IconData prayerHeart(bool on) =>
+      on ? LucideIcons.heart500 : LucideIcons.heart300;
+
+  static IconData reading(bool on) =>
+      on ? LucideIcons.calendarDays500 : LucideIcons.calendarDays300;
+
+  static IconData studiesNav(bool on) =>
+      on ? LucideIcons.bookMarked500 : LucideIcons.bookMarked300;
+
+  static IconData sosNav(bool on) =>
+      on ? LucideIcons.shield500 : LucideIcons.shield300;
 }
 
 abstract final class AppLucideUi {

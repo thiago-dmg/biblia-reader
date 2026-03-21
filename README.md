@@ -21,7 +21,9 @@ lib/
 ├── core/
 │   ├── config/          # bootstrap, prefs (onboarding)
 │   ├── di/              # Riverpod providers
-│   ├── network/         # ApiClient (contrato)
+│   ├── auth/            # sessão + cliente HTTP + progresso canônico
+│   ├── api/             # DTOs + BibliaReaderApi
+│   ├── network/         # BibliaHttpClient, ApiException
 │   ├── router/          # go_router
 │   └── theme/           # cores, tipografia, tema claro/escuro
 ├── features/
@@ -44,7 +46,26 @@ lib/
 Documentação detalhada:
 
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) — arquitetura Flutter, navegação, plano dinâmico.
-- [docs/BACKEND_CSHARP.md](docs/BACKEND_CSHARP.md) — API REST, entidades, PostgreSQL, auth.
+- [docs/BACKEND_CSHARP.md](docs/BACKEND_CSHARP.md) — API REST, entidades, SQL Server, auth.
+
+## API (VPS)
+
+O app usa a **Biblia Reader API** por HTTP. URL padrão: `http://72.61.35.190:5001` (definida em `lib/core/config/api_config.dart`).
+
+Override em build:
+
+```bash
+flutter run --dart-define=BIBLIA_API_BASE_URL=https://seu-dominio.com
+```
+
+- **Auth**: `authProvider` (`lib/core/auth/biblia_auth.dart`) — login, registro, logout; token em `SharedPreferences`.
+- **HTTP**: `BibliaHttpClient` + `BibliaReaderApi` — endpoints `/v1/*` alinhados ao Swagger.
+- **Progresso canônico**: `canonicalReadingProgressProvider` → `GET /v1/me/reading-progress`.
+- **Planos**: `readingPlanRepositoryProvider` lista planos remotos quando há sessão; sem login, mantém plano demo local.
+- **Bíblia NVI**: lista de livros e capítulos vêm de `GET /v1/bible/books` e `GET /v1/bible/chapters` (backend em `C:\\backend` + seed `NviBibleSeeder`). O texto completo da NVI não é incluído no repositório (licença); veja `C:\\backend\\docs\\IMPORTAR_NVI.md`.
+- **Login**: rota `/auth/login`; cartão na home e “Entrar ou criar conta” no perfil quando não há sessão.
+
+Android/iOS permitem HTTP claro para essa VPS (`usesCleartextTraffic` / ATS); em produção com HTTPS, remova ou restrinja.
 
 ## Como rodar
 
@@ -63,7 +84,7 @@ flutter run
 
 ## Próximos passos
 
-1. Implementar cliente HTTP real e mapear DTOs nos repositórios.
-2. Persistir planos e eventos com a API descrita em `BACKEND_CSHARP.md`.
-3. Conteúdo bíblico conforme licença (API ou bundle).
-4. Testes unitários em `ReadingPlanProgressCalculator`.
+1. Sincronizar progresso canônico com telas de leitura (PUT/PATCH) e `addReadingEvents` ao marcar capítulos.
+2. Conteúdo bíblico conforme licença (API ou bundle).
+3. Testes unitários em `ReadingPlanProgressCalculator` e mappers.
+4. Refresh token quando o backend expor além do 501 atual.

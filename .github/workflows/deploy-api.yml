@@ -1,8 +1,7 @@
-# Deploy da API .NET na VPS (systemd), igual ao Minha Rotina Kids.
 # Requer pasta `api/` no repositório (solução BibliaReader).
 # Secrets: VPS_SSH_HOST, VPS_SSH_USER, VPS_SSH_KEY
 
-name: Deploy API to VPS
+name: Deploy API to BibliaReader VPS
 
 on:
   push:

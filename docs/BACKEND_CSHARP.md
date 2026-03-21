@@ -9,10 +9,12 @@ A API **BibliaReader** já existe na pasta **`C:\backend`** (solução `BibliaRe
 | `POST /v1/auth/register`, `POST /v1/auth/login`, `POST /v1/auth/logout` | Implementados |
 | `POST /v1/auth/refresh` | Stub **501** (refresh token pendente) |
 | `GET /v1/bible/versions`, `GET /v1/bible/books` | Implementados (respostas mínimas / seed) |
-| `GET /v1/support/faq` | Implementado |
+| `GET /v1/support/faq` | Implementado (+ seed `FaqSeeder` se tabela vazia) |
+| `POST/GET /v1/support/tickets`, `GET …/tickets/{id}`, `POST …/tickets/{id}/messages` | **Implementados** (SQL Server; usuário só vê os próprios chamados) |
 | `GET/POST … /v1/reading-plans`, `…/events`, `…/snapshot` | Implementados (plano com **Guid** por usuário) |
-| `GET/PUT/PATCH /v1/me/reading-progress` | **Implementado** — tabela `UserCanonicalReadingProgress` (JSONB `CompletedChapterIdsJson`, planos `one-year` / `six-months` / `ninety-days`) |
-| Comunidade, metas, estudos (corpo amplo do §4) | **Roadmap** |
+| `GET/PUT/PATCH /v1/me/reading-progress` | **Implementado** — tabela `UserCanonicalReadingProgress` (`CompletedChapterIdsJson` em nvarchar(max), planos `one-year` / `six-months` / `ninety-days`) |
+| `GET /v1/community/feed`, posts, likes, comments, save | **Implementados** (feed público; mutações exigem JWT) |
+| Metas, estudos (corpo amplo do §4) | **Roadmap** |
 
 **Rodar localmente:** ver `C:\backend\README.md` (`dotnet run` em `src/BibliaReader.Api`, Swagger, EF migrations).
 
