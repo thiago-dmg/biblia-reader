@@ -1,0 +1,8 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/BibliaReader.Api/BibliaReader.Api.csproj" />
+    <Project Path="src/BibliaReader.Application/BibliaReader.Application.csproj" />
+    <Project Path="src/BibliaReader.Domain/BibliaReader.Domain.csproj" />
+    <Project Path="src/BibliaReader.Infrastructure/BibliaReader.Infrastructure.csproj" />
+  </Folder>
+</Solution>

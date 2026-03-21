@@ -1,0 +1,10 @@
+**/[Bb]in/
+**/[Oo]bj/
+**/.vs/
+**/.idea/
+**/*.user
+**/appsettings.Development.json
+**/Migrations/*.Designer.cs
+.git
+.gitignore
+*.md
