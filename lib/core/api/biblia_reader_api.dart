@@ -1,3 +1,4 @@
+import '../network/api_exception.dart';
 import '../network/biblia_http_client.dart';
 import 'api_dtos.dart';
 
@@ -76,8 +77,11 @@ class BibliaReaderApi {
   }
 
   Future<ReadingPlanResponseDto> createReadingPlan(CreateReadingPlanRequest body) async {
-    final j = await _http.post('/v1/reading-plans', body: body.toJson()) as Map<String, dynamic>;
-    return ReadingPlanResponseDto.fromJson(j);
+    final raw = await _http.post('/v1/reading-plans', body: body.toJson());
+    if (raw == null) {
+      throw ApiException('Resposta vazia ao criar o plano.', statusCode: 201);
+    }
+    return ReadingPlanResponseDto.fromJson(raw as Map<String, dynamic>);
   }
 
   Future<ReadingPlanResponseDto> getReadingPlan(String id) async {
@@ -121,7 +125,11 @@ class BibliaReaderApi {
   }
 
   Future<String> communityCreatePost(CreatePostRequest body) async {
-    final j = await _http.post('/v1/community/posts', body: body.toJson()) as Map<String, dynamic>;
+    final raw = await _http.post('/v1/community/posts', body: body.toJson());
+    if (raw == null) {
+      throw ApiException('Resposta vazia ao publicar.', statusCode: 201);
+    }
+    final j = raw as Map<String, dynamic>;
     return '${j['id'] ?? ''}';
   }
 

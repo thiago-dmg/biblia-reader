@@ -78,27 +78,52 @@ class BibliaHttpClient {
   dynamic _decode(http.Response res) {
     if (res.statusCode >= 200 && res.statusCode < 300) {
       if (res.body.isEmpty) return null;
-      return jsonDecode(res.body);
+      try {
+        return jsonDecode(res.body);
+      } catch (_) {
+        throw ApiException(
+          'Resposta inválida (HTTP ${res.statusCode})',
+          statusCode: res.statusCode,
+          body: res.body,
+        );
+      }
     }
     throw ApiException(
-      _messageFromBody(res.body),
+      _messageFromBody(res.body, res.statusCode),
       statusCode: res.statusCode,
       body: res.body,
     );
   }
 
-  static String _messageFromBody(String body) {
+  static String _messageFromBody(String body, int statusCode) {
+    if (body.isEmpty) {
+      return 'Falha na requisição (HTTP $statusCode)';
+    }
     try {
-      final j = jsonDecode(body) as Map<String, dynamic>?;
-      if (j == null) return body;
+      final decoded = jsonDecode(body);
+      if (decoded is! Map<String, dynamic>) {
+        return body.length < 280 ? body : 'Resposta inválida do servidor (HTTP $statusCode)';
+      }
+      final j = decoded;
+      final message = j['message'] as String?;
       final title = j['title'] as String?;
       final detail = j['detail'] as String?;
+      if (message != null && message.isNotEmpty) return message;
+      if (title != null && title.isNotEmpty) return title;
+      if (detail != null && detail.isNotEmpty) return detail;
       final err = j['errors'];
-      if (title != null) return title;
-      if (detail != null) return detail;
-      if (err != null) return err.toString();
-    } catch (_) {}
-    return body.isEmpty ? 'Erro HTTP' : body;
+      if (err is Map) {
+        for (final v in err.values) {
+          if (v is List && v.isNotEmpty) {
+            final first = v.first;
+            if (first is String && first.isNotEmpty) return first;
+          }
+        }
+      }
+    } catch (_) {
+      return body.length < 280 ? body : 'Resposta inválida do servidor (HTTP $statusCode)';
+    }
+    return body.length < 280 ? body : 'Resposta inválida do servidor (HTTP $statusCode)';
   }
 
   void close() => _http.close();
