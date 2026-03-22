@@ -33,6 +33,26 @@ O cliente usa sempre paths que começam com **`/v1/...`** (ex.: `POST /v1/readin
 
 O endpoint `POST /v1/auth/refresh` continua **501** e está oculto no Swagger (`IgnoreApi`).
 
+### `POST /v1/reading-plans` — corpo mínimo (Bíblia inteira, capítulos/dia)
+
+Nem todos os campos do exemplo do Swagger são obrigatórios. Para o preset do app (escopo **Bíblia inteira** + ritmo **capítulos por dia**):
+
+```json
+{
+  "title": "Bíblia em 1 Ano",
+  "scopeType": 0,
+  "paceMode": 0,
+  "chaptersPerDay": 4,
+  "replaceOtherPlans": true
+}
+```
+
+- **`scopeType`**: `0` = Bíblia inteira — **omitir `bookIds`** ou `null` (não enviar lista vazia com outro escopo).
+- **`paceMode`**: `0` = capítulos por dia → **`chaptersPerDay` obrigatório** entre **1 e 50** (valor **0** no Swagger falha na validação com **400**, não 404).
+- **`targetEndDate` / `durationDays`**: só para `paceMode` 1 ou 2.
+- **`bibleVersionId`**: opcional (`null`).
+- **Swagger / Try it out**: rotas com cadeado exigem **Authorize** → colar `Bearer {token}` do login; sem token esperado é **401**; **404** com corpo vazio costumava indicar pipeline sem `UseRouting()` antes da auth (corrigido no servidor).
+
 ---
 
 ## 1. Arquitetura sugerida

@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/auth/biblia_auth.dart';
 import '../../../../core/di/providers.dart';
+import '../../../../core/navigation/reading_plan_routes.dart';
 import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/theme/app_tokens.dart';
 import '../../../../shared/icons/app_icons.dart';
@@ -161,7 +162,7 @@ class PlansListScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: AppSpacing.s12),
                           FilledButton.icon(
-                            onPressed: () => context.push('/home/plans/pick'),
+                            onPressed: () => openChoosePlanScreen(context, ref),
                             icon: const Icon(AppLucideUi.plus, size: 20),
                             label: const Text('Escolher plano'),
                           ),
@@ -313,7 +314,7 @@ class PlansListScreen extends ConsumerWidget {
             ],
           ),
           floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => context.push('/home/plans/pick'),
+            onPressed: () => openChoosePlanScreen(context, ref),
             icon: const Icon(AppLucideUi.plus, size: 20),
             label: const Text('Escolher plano'),
           ),

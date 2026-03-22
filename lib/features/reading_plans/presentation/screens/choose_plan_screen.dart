@@ -59,13 +59,15 @@ class _ChoosePlanScreenState extends ConsumerState<ChoosePlanScreen> {
 
   Future<void> _confirm() async {
     if (_submitting) return;
+    final authed = ref.read(authProvider).value?.isAuthenticated ?? false;
+    if (!authed) {
+      if (!mounted) return;
+      await context.push('/auth/login');
+      return;
+    }
     setState(() => _submitting = true);
     try {
-      final authed = ref.read(authProvider).value?.isAuthenticated ?? false;
       final repo = ref.read(readingPlanRepositoryProvider);
-      if (!authed) {
-        await repo.clearGuestPlans();
-      }
       final draft = _presets[_selected].draft;
       final created = await repo.create(draft, replaceOtherPlans: true);
       ref.invalidate(readingPlansListProvider);

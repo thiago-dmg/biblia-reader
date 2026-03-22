@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 
 import '../../../../core/auth/biblia_auth.dart';
 import '../../../../core/di/providers.dart';
+import '../../../../core/navigation/reading_plan_routes.dart';
 import '../../../../core/theme/app_colors.dart';
 import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/theme/app_tokens.dart';
@@ -224,7 +225,7 @@ class DashboardScreen extends ConsumerWidget {
                             child: Material(
                               color: Colors.transparent,
                               child: InkWell(
-                                onTap: () => context.push('/home/plans/pick'),
+                                onTap: () => openChoosePlanScreen(context, ref),
                                 borderRadius: BorderRadius.circular(AppRadii.md),
                                 child: Padding(
                                   padding: const EdgeInsets.only(right: 4, bottom: 4),
@@ -272,7 +273,7 @@ class DashboardScreen extends ConsumerWidget {
                           _TrocarPlanoColumn(
                             scheme: scheme,
                             theme: theme,
-                            onTap: () => context.push('/home/plans/pick'),
+                            onTap: () => openChoosePlanScreen(context, ref),
                           ),
                         ],
                       ),
@@ -392,7 +393,7 @@ class DashboardScreen extends ConsumerWidget {
                         _TrocarPlanoColumn(
                           scheme: scheme,
                           theme: theme,
-                          onTap: () => context.push('/home/plans/pick'),
+                          onTap: () => openChoosePlanScreen(context, ref),
                         ),
                       ],
                     ),

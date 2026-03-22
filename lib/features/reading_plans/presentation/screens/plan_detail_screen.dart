@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:intl/intl.dart';
 
 import '../../../../core/di/providers.dart';
+import '../../../../core/navigation/reading_plan_routes.dart';
 import '../../../../core/network/api_exception.dart';
 import '../../../../core/theme/app_gradients.dart';
 import '../../../../core/theme/app_tokens.dart';
@@ -157,7 +158,7 @@ class _PlanDetailScreenState extends ConsumerState<PlanDetailScreen> {
                 actions: [
                   IconButton(
                     tooltip: 'Ajustes',
-                    onPressed: () => context.push('/home/plans/pick'),
+                    onPressed: () => openChoosePlanScreen(context, ref),
                     icon: Icon(Icons.settings_outlined, color: scheme.primary),
                   ),
                 ],
