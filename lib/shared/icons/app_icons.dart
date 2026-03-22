@@ -33,6 +33,10 @@ abstract final class AppLucideNav {
 
   static IconData sosNav(bool on) =>
       on ? LucideIcons.shield500 : LucideIcons.shield300;
+
+  /// Barra inferior — Suporte (headset).
+  static IconData supportNav(bool on) =>
+      on ? LucideIcons.headphones500 : LucideIcons.headphones300;
 }
 
 abstract final class AppLucideUi {

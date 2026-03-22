@@ -136,6 +136,7 @@ class ReadingPlanResponseDto {
     required this.paceMode,
     this.chaptersPerDay,
     this.targetEndDate,
+    this.durationDays,
     required this.totalChapters,
     required this.completedChapters,
     required this.startedOn,
@@ -149,6 +150,7 @@ class ReadingPlanResponseDto {
   final int paceMode;
   final int? chaptersPerDay;
   final String? targetEndDate;
+  final int? durationDays;
   final int totalChapters;
   final int completedChapters;
   final String startedOn;
@@ -164,6 +166,7 @@ class ReadingPlanResponseDto {
       paceMode: (json['paceMode'] as num?)?.toInt() ?? 0,
       chaptersPerDay: (json['chaptersPerDay'] as num?)?.toInt(),
       targetEndDate: json['targetEndDate'] as String?,
+      durationDays: (json['durationDays'] as num?)?.toInt(),
       totalChapters: (json['totalChapters'] as num?)?.toInt() ?? 0,
       completedChapters: (json['completedChapters'] as num?)?.toInt() ?? 0,
       startedOn: json['startedOn'] as String? ?? '',
@@ -183,6 +186,7 @@ class CreateReadingPlanRequest {
     this.targetEndDate,
     this.durationDays,
     this.bibleVersionId,
+    this.replaceOtherPlans = false,
   });
 
   final String title;
@@ -193,12 +197,14 @@ class CreateReadingPlanRequest {
   final String? targetEndDate;
   final int? durationDays;
   final String? bibleVersionId;
+  final bool replaceOtherPlans;
 
   Map<String, dynamic> toJson() {
     final m = <String, dynamic>{
       'title': title,
       'scopeType': scopeType,
       'paceMode': paceMode,
+      'replaceOtherPlans': replaceOtherPlans,
     };
     if (bookIds != null) m['bookIds'] = bookIds;
     if (chaptersPerDay != null) m['chaptersPerDay'] = chaptersPerDay;

@@ -1,8 +1,13 @@
 # Backend recomendado — .NET (C#)
 
-## 0. Implementação no repositório (`C:\backend`)
+## 0. Onde está o código da API
 
-A API **BibliaReader** já existe na pasta **`C:\backend`** (solução `BibliaReader.sln`, .NET 8, PostgreSQL, JWT). Este documento descreve o **contrato alvo**; nem todos os endpoints abaixo estão implementados — compare com os controllers em `src/BibliaReader.Api/Controllers/V1/`.
+- **Repositório:** [thiago-dmg/BibleReader.Api.Vps](https://github.com/thiago-dmg/BibleReader.Api.Vps)  
+- **Pasta local típica:** `C:\backend` (clone desse repo)
+
+O app Flutter (**biblia-reader**) **não** contém o projeto .NET; só consome a API por HTTP.
+
+A API **BibliaReader** (.NET 8, SQL Server na VPS, JWT) vive no repositório acima. Este documento descreve o **contrato** para o app; confira os controllers em `src/BibliaReader.Api/Controllers/V1/` no repo da API.
 
 | Área | Status típico hoje |
 |------|---------------------|
@@ -16,7 +21,7 @@ A API **BibliaReader** já existe na pasta **`C:\backend`** (solução `BibliaRe
 | `GET /v1/community/feed`, posts, likes, comments, save | **Implementados** (feed público; mutações exigem JWT) |
 | Metas, estudos (corpo amplo do §4) | **Roadmap** |
 
-**Rodar localmente:** ver `C:\backend\README.md` (`dotnet run` em `src/BibliaReader.Api`, Swagger, EF migrations).
+**Rodar localmente:** clone [BibleReader.Api.Vps](https://github.com/thiago-dmg/BibleReader.Api.Vps) e siga o `README.md` (`dotnet run` em `src/BibliaReader.Api`, Swagger, EF migrations).
 
 ---
 
@@ -28,7 +33,7 @@ A API **BibliaReader** já existe na pasta **`C:\backend`** (solução `BibliaRe
   - **Application**: casos de uso, DTOs de comando/consulta, orquestração.
   - **Domain**: entidades, enums, domain services (ex.: recálculo de plano — espelhar regras do Flutter ou centralizar aqui).
   - **Infrastructure**: EF Core, repositórios, integrações (e-mail, push), armazenamento de mídia.
-- **PostgreSQL** como banco principal (JSONB para metadados flexíveis se necessário).
+- **SQL Server** na VPS (repositório da API); ajuste conforme o ambiente do [BibleReader.Api.Vps](https://github.com/thiago-dmg/BibleReader.Api.Vps).
 - **Redis** (opcional): cache de feed, rate limiting.
 - **Hangfire / Quartz** (opcional): lembretes, fechamento de metas diárias.
 
@@ -39,7 +44,7 @@ A API **BibliaReader** já existe na pasta **`C:\backend`** (solução `BibliaRe
 | `User` | Conta, perfil público, configurações. |
 | `RefreshToken` | Rotação de tokens. |
 | `BibleVersion` | Versão da tradução (ACF, NVI, etc.). |
-| `BibleBook`, `BibleChapter` | Catálogo (ou referência estática + IDs). |
+| `BibleBook`, `BibleChapter`, `BibleVerse` | Catálogo e texto persistido (cache lazy da API externa para ACF; NVI pode usar `ContentHtml`). Ver `docs/BIBLE_EXTERNAL_API.md`. |
 | `ReadingPlan` | Plano do usuário: escopo, modo de ritmo, datas, estado. |
 | `ReadingPlanDay` / `ReadingEvent` | Evento atômico: usuário leu capítulo X em Y. |
 | `Goal` | Meta (diária, semanal, livro até data, streak). |

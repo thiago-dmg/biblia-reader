@@ -13,14 +13,12 @@ import '../../features/home/presentation/screens/dashboard_screen.dart';
 import '../../features/onboarding/presentation/screens/onboarding_screen.dart';
 import '../../features/prayer/presentation/screens/prayer_room_screen.dart';
 import '../../features/profile/presentation/screens/profile_screen.dart';
+import '../../features/reading_plans/presentation/screens/choose_plan_screen.dart';
 import '../../features/reading_plans/presentation/screens/create_plan_screen.dart';
 import '../../features/reading_plans/presentation/screens/plan_detail_screen.dart';
 import '../../features/reading_plans/presentation/screens/plans_list_screen.dart';
 import '../../features/settings/presentation/screens/settings_screen.dart';
 import '../../features/shell/presentation/main_shell.dart';
-import '../../features/sos/presentation/screens/sos_home_screen.dart';
-import '../../features/studies/presentation/screens/studies_home_screen.dart';
-import '../../features/studies/presentation/screens/study_detail_screen.dart';
 import '../../features/support/presentation/screens/support_home_screen.dart';
 import '../config/onboarding_prefs.dart';
 
@@ -56,19 +54,9 @@ final goRouterProvider = Provider<GoRouter>((ref) {
         builder: (context, state) => const LoginScreen(),
       ),
       GoRoute(
-        path: '/community',
+        path: '/support',
         parentNavigatorKey: _rootNavigatorKey,
-        builder: (context, state) => const CommunityFeedScreen(),
-        routes: [
-          GoRoute(
-            path: 'post/:postId',
-            parentNavigatorKey: _rootNavigatorKey,
-            builder: (context, state) {
-              final id = state.pathParameters['postId']!;
-              return CommunityPostDetailScreen(postId: id);
-            },
-          ),
-        ],
+        builder: (context, state) => const SupportHomeScreen(),
       ),
       GoRoute(
         path: '/profile',
@@ -99,6 +87,11 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     routes: [
                       GoRoute(
                         parentNavigatorKey: _rootNavigatorKey,
+                        path: 'pick',
+                        builder: (context, state) => const ChoosePlanScreen(),
+                      ),
+                      GoRoute(
+                        parentNavigatorKey: _rootNavigatorKey,
                         path: 'new',
                         builder: (context, state) => const CreatePlanScreen(),
                       ),
@@ -116,11 +109,6 @@ final goRouterProvider = Provider<GoRouter>((ref) {
                     parentNavigatorKey: _rootNavigatorKey,
                     path: 'goals',
                     builder: (context, state) => const GoalsScreen(),
-                  ),
-                  GoRoute(
-                    parentNavigatorKey: _rootNavigatorKey,
-                    path: 'support',
-                    builder: (context, state) => const SupportHomeScreen(),
                   ),
                 ],
               ),
@@ -156,15 +144,15 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/studies',
-                builder: (context, state) => const StudiesHomeScreen(),
+                path: '/community',
+                builder: (context, state) => const CommunityFeedScreen(),
                 routes: [
                   GoRoute(
                     parentNavigatorKey: _rootNavigatorKey,
-                    path: ':studyId',
+                    path: 'post/:postId',
                     builder: (context, state) {
-                      final id = state.pathParameters['studyId']!;
-                      return StudyDetailScreen(studyId: id);
+                      final id = state.pathParameters['postId']!;
+                      return CommunityPostDetailScreen(postId: id);
                     },
                   ),
                 ],
@@ -174,8 +162,8 @@ final goRouterProvider = Provider<GoRouter>((ref) {
           StatefulShellBranch(
             routes: [
               GoRoute(
-                path: '/sos',
-                builder: (context, state) => const SosHomeScreen(),
+                path: '/me',
+                builder: (context, state) => const ProfileScreen(),
               ),
             ],
           ),

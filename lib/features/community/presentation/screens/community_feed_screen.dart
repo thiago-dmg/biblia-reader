@@ -22,60 +22,17 @@ class CommunityFeedScreen extends ConsumerWidget {
       }
       return;
     }
-    final controller = TextEditingController();
-    final ok = await showModalBottomSheet<bool>(
+    final published = await showModalBottomSheet<bool>(
       context: context,
       isScrollControlled: true,
       showDragHandle: true,
-      builder: (ctx) {
-        return Padding(
-          padding: EdgeInsets.only(
-            left: AppSpacing.page,
-            right: AppSpacing.page,
-            top: AppSpacing.s12,
-            bottom: MediaQuery.paddingOf(ctx).bottom + MediaQuery.viewInsetsOf(ctx).bottom + AppSpacing.s16,
-          ),
-          child: Column(
-            mainAxisSize: MainAxisSize.min,
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-              Text('Nova publicação', style: Theme.of(ctx).textTheme.titleLarge),
-              const SizedBox(height: AppSpacing.s12),
-              TextField(
-                controller: controller,
-                decoration: const InputDecoration(
-                  hintText: 'Compartilhe uma reflexão ou versículo…',
-                  border: OutlineInputBorder(),
-                ),
-                minLines: 4,
-                maxLines: 10,
-                autofocus: true,
-                textCapitalization: TextCapitalization.sentences,
-              ),
-              const SizedBox(height: AppSpacing.s16),
-              FilledButton(
-                onPressed: () => Navigator.pop(ctx, true),
-                child: const Text('Publicar'),
-              ),
-            ],
-          ),
-        );
-      },
+      builder: (ctx) => const _CommunityComposeSheet(),
     );
-    final text = controller.text.trim();
-    controller.dispose();
-    if (ok != true || text.isEmpty || !context.mounted) return;
-    try {
-      await ref.read(bibliaReaderApiProvider).communityCreatePost(CreatePostRequest(body: text));
-      ref.invalidate(communityFeedProvider);
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Publicado!')));
-      }
-    } on ApiException catch (e) {
-      if (context.mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(e.message)));
-      }
-    }
+    if (published != true || !context.mounted) return;
+    ref.invalidate(communityFeedProvider);
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(content: Text('Publicado!')),
+    );
   }
 
   Future<void> _toggleLike(BuildContext context, WidgetRef ref, FeedPostDto post) async {
@@ -203,6 +160,110 @@ class CommunityFeedScreen extends ConsumerWidget {
             ),
           ),
         ),
+      ),
+    );
+  }
+}
+
+/// Publicação via API dentro do sheet (loading + erros legíveis, ex. 401).
+class _CommunityComposeSheet extends ConsumerStatefulWidget {
+  const _CommunityComposeSheet();
+
+  @override
+  ConsumerState<_CommunityComposeSheet> createState() => _CommunityComposeSheetState();
+}
+
+class _CommunityComposeSheetState extends ConsumerState<_CommunityComposeSheet> {
+  late final TextEditingController _controller;
+  bool _publishing = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = TextEditingController();
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  Future<void> _publish() async {
+    final trimmed = _controller.text.trim();
+    if (trimmed.isEmpty || _publishing) return;
+
+    final auth = ref.read(authProvider).valueOrNull;
+    if (auth == null || !auth.isAuthenticated) {
+      if (mounted) Navigator.pop(context);
+      return;
+    }
+
+    setState(() => _publishing = true);
+    try {
+      await ref.read(bibliaReaderApiProvider).communityCreatePost(CreatePostRequest(body: trimmed));
+      if (!mounted) return;
+      Navigator.pop(context, true);
+    } on ApiException catch (e) {
+      if (!mounted) return;
+      final msg = e.statusCode == 401
+          ? 'Sessão expirada. Saia e entre de novo para publicar.'
+          : e.message;
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(msg)));
+    } catch (e) {
+      if (!mounted) return;
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Não foi possível publicar: $e')),
+      );
+    } finally {
+      if (mounted) setState(() => _publishing = false);
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final scheme = Theme.of(context).colorScheme;
+    return Padding(
+      padding: EdgeInsets.only(
+        left: AppSpacing.page,
+        right: AppSpacing.page,
+        top: AppSpacing.s12,
+        bottom: MediaQuery.paddingOf(context).bottom +
+            MediaQuery.viewInsetsOf(context).bottom +
+            AppSpacing.s16,
+      ),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          Text('Nova publicação', style: Theme.of(context).textTheme.titleLarge),
+          const SizedBox(height: AppSpacing.s12),
+          TextField(
+            controller: _controller,
+            decoration: const InputDecoration(
+              hintText: 'Compartilhe uma reflexão ou versículo…',
+              border: OutlineInputBorder(),
+            ),
+            minLines: 4,
+            maxLines: 10,
+            autofocus: true,
+            textCapitalization: TextCapitalization.sentences,
+          ),
+          const SizedBox(height: AppSpacing.s16),
+          FilledButton(
+            onPressed: _publishing ? null : _publish,
+            child: _publishing
+                ? SizedBox(
+                    width: 22,
+                    height: 22,
+                    child: CircularProgressIndicator(
+                      strokeWidth: 2,
+                      color: scheme.onPrimary,
+                    ),
+                  )
+                : const Text('Publicar'),
+          ),
+        ],
       ),
     );
   }

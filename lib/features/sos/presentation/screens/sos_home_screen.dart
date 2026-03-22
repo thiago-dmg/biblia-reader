@@ -31,7 +31,7 @@ class SosHomeScreen extends StatelessWidget {
           ),
           const SizedBox(height: AppSpacing.s24),
           FilledButton(
-            onPressed: () => context.push('/home/support'),
+            onPressed: () => context.go('/support'),
             child: const Text('Abrir suporte'),
           ),
         ],

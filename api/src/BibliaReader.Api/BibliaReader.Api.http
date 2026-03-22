@@ -1,6 +1,0 @@
-@BibliaReader.Api_HostAddress = http://localhost:5216
-
-GET {{BibliaReader.Api_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###

@@ -5,7 +5,7 @@ import '../../../core/theme/app_gradients.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../shared/icons/app_icons.dart';
 
-/// Dock estilo “Divine”: 4 itens + **FAB central (Bíblia)** — Leitura, Oração, Estudos, SOS.
+/// Dock: 4 itens + **FAB central (Bíblia)** — Leitura, Oração, Comunidade, Perfil.
 class AppBottomBar extends StatelessWidget {
   const AppBottomBar({
     super.key,
@@ -16,9 +16,9 @@ class AppBottomBar extends StatelessWidget {
   final int currentIndex;
   final ValueChanged<int> onSelect;
 
-  static const _labels = ['Leitura', 'Oração', 'Estudos', 'SOS'];
+  static const _labels = ['Leitura', 'Oração', 'Comunidade', 'Suporte'];
 
-  /// 0 Leitura, 1 Oração, 2 **Bíblia (FAB)**, 3 Estudos, 4 SOS.
+  /// 0 Leitura, 1 Oração, 2 **Bíblia (FAB)**, 3 Comunidade, 4 Suporte.
   static const _fabIndex = 2;
   static const _fabSize = 58.0;
   static const _fabOverhang = 24.0;
@@ -30,9 +30,9 @@ class AppBottomBar extends StatelessWidget {
       case 1:
         return AppLucideNav.prayerHeart(on);
       case 3:
-        return AppLucideNav.studiesNav(on);
+        return AppLucideNav.community(on);
       case 4:
-        return AppLucideNav.sosNav(on);
+        return AppLucideNav.profile(on);
       default:
         return AppLucideNav.reading(on);
     }

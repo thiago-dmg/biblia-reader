@@ -1,59 +1,17 @@
-# Bíblia externa (ACF) — Biblia Reader API
+# Bíblia no app — integração com a API
 
-## Visão geral
+Este ficheiro resume o comportamento **do ponto de vista do Flutter**. A **implementação** (EF Core, ABíblia Digital, cache em SQL Server, `BibleController`) está apenas no repositório da API:
 
-O texto bíblico **não** é armazenado no PostgreSQL. A API atua como **BFF**: busca conteúdo na [ABíblia Digital](https://www.abibliadigital.com.br/), versão padrão **ACF** (Almeida Corrigida Fiel), com **cache em memória** e contrato interno estável.
+**[thiago-dmg/BibleReader.Api.Vps](https://github.com/thiago-dmg/BibleReader.Api.Vps)** (pasta local típica: `C:\backend`).
 
-## Arquitetura
+## Comportamento esperado
 
-| Camada | Responsabilidade |
-|--------|------------------|
-| `BibliaReader.Application` | `IBibleTextProvider`, DTOs (`BibleVersionInfo`, `BibleBookInfo`, `BibleChapterPayload`), `ExternalBibleOptions`, catálogo canônico `BibleCanonCatalog` |
-| `BibliaReader.Infrastructure` | `AbibliadigitalBibleTextProvider`, `HttpClient` nomeado `ExternalBible`, mapeamento de abreviações |
-| `BibliaReader.Api` | `BibleController`, `IMemoryCache`, binding de opções |
+- Primeira leitura de um capítulo (ex. ACF): a API pode buscar na [ABíblia Digital](https://www.abibliadigital.com.br/) e **gravar** versículos no banco.
+- Leituras seguintes: o texto vem do **banco**, sem depender da API externa a cada request.
+- Endpoints usados pelo app: `GET /v1/bible/versions`, `books`, `chapters` (query ou `books/{livro}/chapters/{n}`), `…/verses/{v}`.
 
-## Configuração (`appsettings.json`)
+## Configuração
 
-```json
-"ExternalBible": {
-  "BaseUrl": "https://www.abibliadigital.com.br",
-  "DefaultVersionCode": "acf",
-  "TimeoutSeconds": 25,
-  "CacheDurationMinutes": 360,
-  "ApiToken": null
-}
-```
+`ExternalBible`, `OnlineLazyVersionCodes`, etc. são definidos no **`appsettings`** do projeto da API (não neste repo).
 
-- **BaseUrl**: sem barra final no JSON; o código normaliza.
-- **DefaultVersionCode**: `acf` por padrão; pode evoluir para `nvi` se o provedor suportar.
-- **ApiToken**: reservado para APIs que exijam chave (a API pública atual não usa).
-
-## Endpoints internos
-
-| Método | Rota | Descrição |
-|--------|------|-----------|
-| GET | `/v1/bible/versions` | Versões expostas (hoje: ACF). |
-| GET | `/v1/bible/books?versionCode=acf` | Livros (metadados do catálogo canônico). |
-| GET | `/v1/bible/chapters?bookAbbrev=GEN&number=1&versionCode=acf` | Capítulo (HTML montado a partir dos versículos). |
-| GET | `/v1/bible/books/GEN/chapters/1` | Mesmo conteúdo, REST. |
-| GET | `/v1/bible/books/GEN/chapters/1/verses/1` | Um versículo. |
-
-Compatibilidade: `versionId` (GUID da versão ACF estável) ainda pode ser enviado; o controller resolve para `acf`.
-
-## Exemplos de chamada
-
-```http
-GET /v1/bible/books?versionCode=acf
-GET /v1/bible/chapters?bookAbbrev=GEN&number=1&versionCode=acf
-GET /v1/bible/books/GEN/chapters/1/verses/1?versionCode=acf
-```
-
-## Limitações
-
-- Depende da disponibilidade e formato da API pública.
-- Rate limit / indisponibilidade retornam **502** com mensagem amigável.
-- Traduções adicionais exigem outro `IBibleTextProvider` ou extensão do atual.
-
-## Trocar de provedor
-
-Implemente `IBibleTextProvider` e registre no `DependencyInjection` da Infrastructure no lugar de `AbibliadigitalBibleTextProvider`.
+Para detalhes de camadas (`IBibleExternalProvider`, `PersistentBibleTextProvider`, migrations), consulte o código e o `README`/docs no **BibleReader.Api.Vps**.

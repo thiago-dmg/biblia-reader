@@ -31,7 +31,7 @@ ReadingPlan mapReadingPlanResponseDto(ReadingPlanResponseDto dto) {
       mode: ReadingPaceMode.values[paceIdx],
       chaptersPerDay: dto.chaptersPerDay,
       targetEndDate: targetEnd,
-      durationDays: null,
+      durationDays: dto.durationDays,
     ),
     startDate: start,
     totalChaptersInScope: dto.totalChapters,
@@ -42,7 +42,10 @@ ReadingPlan mapReadingPlanResponseDto(ReadingPlanResponseDto dto) {
   );
 }
 
-CreateReadingPlanRequest domainToCreateRequest(ReadingPlan plan) {
+CreateReadingPlanRequest domainToCreateRequest(
+  ReadingPlan plan, {
+  bool replaceOtherPlans = false,
+}) {
   String? targetEnd;
   final t = plan.pace.targetEndDate;
   if (t != null) {
@@ -59,5 +62,6 @@ CreateReadingPlanRequest domainToCreateRequest(ReadingPlan plan) {
     targetEndDate: targetEnd,
     durationDays: plan.pace.durationDays,
     bibleVersionId: null,
+    replaceOtherPlans: replaceOtherPlans,
   );
 }

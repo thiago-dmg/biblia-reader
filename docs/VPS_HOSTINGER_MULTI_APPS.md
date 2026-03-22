@@ -6,7 +6,7 @@ Guia prático para conviver **Minha Rotina Kids** (MySQL + app que você já tem
 
 - **Um IP, vários serviços**: cada app escuta em **porta interna** (ex.: Kids em `3000`, API Biblia em `5001`, MySQL em `3306`, Postgres em `5432` só na rede Docker).
 - **Nginx (ou Caddy)** na frente: recebe `https://kids.seudominio.com` e `https://api.seudominio.com`, termina SSL e **encaminha** para `127.0.0.1:porta`.
-- **Docker** (Hostinger tem *Gerenciador Docker*): isola dependências; o projeto Kids pode continuar como está; o BibliaReader pode subir com o `docker-compose.yml` do repositório `C:\backend`.
+- **Docker** (Hostinger tem *Gerenciador Docker*): isola dependências; o projeto Kids pode continuar como está; o BibliaReader pode subir com o `docker-compose.yml` do repositório da API ([BibleReader.Api.Vps](https://github.com/thiago-dmg/BibleReader.Api.Vps), pasta local típica `C:\backend`).
 
 ## O que não misturar
 
@@ -104,8 +104,7 @@ Pelo painel: CPU e RAM com folga, disco **~94 GB livres**. Vários containers + 
 
 ## Arquivos no repositório
 
-- `C:\backend\Dockerfile` — imagem da API .NET 8  
-- `C:\backend\docker-compose.yml` — API + Postgres (exemplo)  
-- `C:\backend\.env.example` — variáveis necessárias  
+- `Dockerfile` / `docker-compose.yml` no repo **BibleReader.Api.Vps** — imagem da API .NET 8 e dependências  
+- `.env.example` no mesmo repositório — variáveis necessárias  
 
 Ajuste portas e nomes de container se já existirem conflitos com o Kids.

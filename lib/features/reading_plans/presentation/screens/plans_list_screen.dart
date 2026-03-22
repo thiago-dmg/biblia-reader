@@ -161,9 +161,9 @@ class PlansListScreen extends ConsumerWidget {
                           ),
                           const SizedBox(height: AppSpacing.s12),
                           FilledButton.icon(
-                            onPressed: () => context.push('/home/plans/new'),
+                            onPressed: () => context.push('/home/plans/pick'),
                             icon: const Icon(AppLucideUi.plus, size: 20),
-                            label: const Text('Criar plano'),
+                            label: const Text('Escolher plano'),
                           ),
                         ],
                       )
@@ -313,9 +313,9 @@ class PlansListScreen extends ConsumerWidget {
             ],
           ),
           floatingActionButton: FloatingActionButton.extended(
-            onPressed: () => context.push('/home/plans/new'),
+            onPressed: () => context.push('/home/plans/pick'),
             icon: const Icon(AppLucideUi.plus, size: 20),
-            label: const Text('Novo plano'),
+            label: const Text('Escolher plano'),
           ),
         );
       },
