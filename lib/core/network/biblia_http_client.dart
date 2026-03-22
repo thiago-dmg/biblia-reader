@@ -97,12 +97,25 @@ class BibliaHttpClient {
 
   static String _messageFromBody(String body, int statusCode) {
     if (body.isEmpty) {
+      if (statusCode == 401) {
+        return 'E-mail ou senha incorretos. Verifique e tente de novo.';
+      }
       return 'Falha na requisição (HTTP $statusCode)';
     }
     try {
       final decoded = jsonDecode(body);
+      if (decoded is List) {
+        final parts = <String>[];
+        for (final e in decoded) {
+          if (e is Map) {
+            final d = e['description'] as String? ?? e['Description'] as String?;
+            if (d != null && d.isNotEmpty) parts.add(d);
+          }
+        }
+        if (parts.isNotEmpty) return parts.join(' ');
+      }
       if (decoded is! Map<String, dynamic>) {
-        return body.length < 280 ? body : 'Resposta inválida do servidor (HTTP $statusCode)';
+        return body.length < 800 ? body : 'Resposta inválida do servidor (HTTP $statusCode)';
       }
       final j = decoded;
       final message = j['message'] as String?;
@@ -121,9 +134,9 @@ class BibliaHttpClient {
         }
       }
     } catch (_) {
-      return body.length < 280 ? body : 'Resposta inválida do servidor (HTTP $statusCode)';
+      return body.length < 800 ? body : 'Resposta inválida do servidor (HTTP $statusCode)';
     }
-    return body.length < 280 ? body : 'Resposta inválida do servidor (HTTP $statusCode)';
+    return body.length < 800 ? body : 'Resposta inválida do servidor (HTTP $statusCode)';
   }
 
   void close() => _http.close();
