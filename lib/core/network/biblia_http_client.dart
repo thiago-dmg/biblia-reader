@@ -100,6 +100,10 @@ class BibliaHttpClient {
       if (statusCode == 401) {
         return 'E-mail ou senha incorretos. Verifique e tente de novo.';
       }
+      if (statusCode == 301 || statusCode == 302 || statusCode == 307 || statusCode == 308) {
+        return 'O servidor respondeu com redirecionamento (HTTP $statusCode). '
+            'Para API em HTTP direto, desative UseHttpsRedirection no backend ou use a URL HTTPS final no app.';
+      }
       return 'Falha na requisição (HTTP $statusCode)';
     }
     try {
