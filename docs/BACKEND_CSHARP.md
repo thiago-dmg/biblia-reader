@@ -23,6 +23,16 @@ A API **BibliaReader** (.NET 8, SQL Server na VPS, JWT) vive no repositório aci
 
 **Rodar localmente:** clone [BibleReader.Api.Vps](https://github.com/thiago-dmg/BibleReader.Api.Vps) e siga o `README.md` (`dotnet run` em `src/BibliaReader.Api`, Swagger, EF migrations).
 
+### Rotas canônicas (app Flutter ↔ API)
+
+O cliente usa sempre paths que começam com **`/v1/...`** (ex.: `POST /v1/reading-plans`, `POST /v1/community/posts`). Os controllers estão em `[Route("v1/…")]` — **não** há prefixo `/api` obrigatório na URL que o Kestrel vê.
+
+- **Base URL do app:** `http://HOST:PORTA` (ex.: `http://72.61.35.190:5001`). Não inclua path extra a menos que o proxy exija.
+- **Proxy com `/api`:** se o nginx expuser `https://domínio/api/v1/...`, a API reescreve internamente `/api/v1/...` → `/v1/...` (middleware em `Program.cs`).
+- **404 em POST após redirect:** redirects `Location` sem a porta customizada (ex. `:5001`) faziam o cliente bater na porta 80; o app preserva a porta original ao seguir redirect (`manual_redirect_http_io.dart`).
+
+O endpoint `POST /v1/auth/refresh` continua **501** e está oculto no Swagger (`IgnoreApi`).
+
 ---
 
 ## 1. Arquitetura sugerida

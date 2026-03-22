@@ -50,7 +50,8 @@ Future<http.Response> _send(
   if (code >= 300 && code < 400 && depth < _maxRedirects) {
     final loc = streamed.headers.value(HttpHeaders.locationHeader);
     if (loc != null && loc.isNotEmpty) {
-      final next = url.resolve(loc);
+      final resolved = url.resolve(loc);
+      final next = _reconcileRedirectTarget(url, resolved);
       if (next != url) {
         if (_methodHasBody(method) && jsonBody != null) {
           return _send(client, method, next, headers, jsonBody, depth + 1);
@@ -66,6 +67,22 @@ Future<http.Response> _send(
     headers: flat,
     reasonPhrase: streamed.reasonPhrase,
   );
+}
+
+/// ASP.NET/nginx às vezes devolve Location sem a porta customizada (:5001).
+/// Sem isso, o cliente repete o POST na 80 e recebe 404.
+Uri _reconcileRedirectTarget(Uri originalRequest, Uri resolved) {
+  if (originalRequest.host != resolved.host || originalRequest.scheme != resolved.scheme) {
+    return resolved;
+  }
+  int defaultForScheme(String scheme) => scheme == 'https' ? 443 : 80;
+  final oDef = defaultForScheme(originalRequest.scheme);
+  final oPort = originalRequest.port;
+  final rPort = resolved.port;
+  if (oPort != oDef && rPort == oDef) {
+    return resolved.replace(port: oPort);
+  }
+  return resolved;
 }
 
 bool _methodHasBody(String m) {
