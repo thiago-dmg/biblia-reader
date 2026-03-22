@@ -3,6 +3,8 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 
 import 'api_exception.dart';
+import 'manual_redirect_http_web.dart'
+    if (dart.library.io) 'manual_redirect_http_io.dart' as manual_redirect;
 
 typedef TokenProvider = String? Function();
 
@@ -42,28 +44,31 @@ class BibliaHttpClient {
   }
 
   Future<dynamic> post(String path, {Object? body}) async {
-    final res = await _http.post(
-      _u(path),
+    final res = await manual_redirect.sendWithManualRedirect(
+      method: 'POST',
+      url: _u(path),
       headers: _headers(jsonBody: body != null),
-      body: body == null ? null : jsonEncode(body),
+      jsonBody: body,
     );
     return _decode(res);
   }
 
   Future<dynamic> put(String path, {Object? body}) async {
-    final res = await _http.put(
-      _u(path),
+    final res = await manual_redirect.sendWithManualRedirect(
+      method: 'PUT',
+      url: _u(path),
       headers: _headers(jsonBody: true),
-      body: jsonEncode(body),
+      jsonBody: body,
     );
     return _decode(res);
   }
 
   Future<dynamic> patch(String path, {Object? body}) async {
-    final res = await _http.patch(
-      _u(path),
+    final res = await manual_redirect.sendWithManualRedirect(
+      method: 'PATCH',
+      url: _u(path),
       headers: _headers(jsonBody: true),
-      body: jsonEncode(body),
+      jsonBody: body,
     );
     return _decode(res);
   }
