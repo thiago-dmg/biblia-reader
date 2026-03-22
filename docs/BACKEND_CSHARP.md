@@ -31,6 +31,17 @@ O cliente usa sempre paths que começam com **`/v1/...`** (ex.: `POST /v1/readin
 - **Proxy com `/api`:** se o nginx expuser `https://domínio/api/v1/...`, a API reescreve internamente `/api/v1/...` → `/v1/...` (middleware em `Program.cs`).
 - **404 em POST após redirect:** redirects `Location` sem a porta customizada (ex. `:5001`) faziam o cliente bater na porta 80; o app preserva a porta original ao seguir redirect (`manual_redirect_http_io.dart`).
 
+#### Se o `swagger.json` lista `/v1/reading-plans` mas o POST devolve 404
+
+O OpenAPI prova que a **aplicação que gera o Swagger** conhece a rota. Se ainda assim falha:
+
+1. **Mesma origem** — Swagger UI e o “Try it out” usam o mesmo host/porta do servidor Kestrel (`http://IP:5001`). O app Flutter deve usar a **mesma base** (`BIBLIA_API_BASE_URL`). Se houver **nginx/cPanel** na frente, compare o que responde na **5001 direta** vs **443**.
+2. **GET de sanidade** — `GET /v1/bible/versions` (anônimo). Se só o POST falhar, suspeite de **proxy** que altera método/path ou de **pipeline** antigo (redeploy sem `UseRouting()` antes da auth).
+3. **Diagnóstico na API** (commit recente):
+   - `GET /v1/diagnostics/echo` — ative `Diagnostics:EnableEcho` em `appsettings` na VPS. Devolve `path`, `pathBase`, `host`, `scheme` e cabeçalhos `X-Forwarded-*` para ver o que o Kestrel recebe **depois** do rewrite `/api`.
+   - `Diagnostics:LogIncomingPath` — loga cada linha `HTTP {Method} {Path}` (útil em journal/docker).
+4. **Proxy** — regras que removem `/v1`, duplicam prefixo ou só encaminham GET podem causar 404 fora do ASP.NET (corpo vazio, outro `Server:` header).
+
 O endpoint `POST /v1/auth/refresh` continua **501** e está oculto no Swagger (`IgnoreApi`).
 
 ### `POST /v1/reading-plans` — corpo mínimo (Bíblia inteira, capítulos/dia)
