@@ -31,12 +31,13 @@ O cliente usa sempre paths que começam com **`/v1/...`** (ex.: `POST /v1/readin
 - **Proxy com `/api`:** se o nginx expuser `https://domínio/api/v1/...`, a API reescreve internamente `/api/v1/...` → `/v1/...` (middleware em `Program.cs`).
 - **404 em POST após redirect:** redirects `Location` sem a porta customizada (ex. `:5001`) faziam o cliente bater na porta 80; o app preserva a porta original ao seguir redirect (`manual_redirect_http_io.dart`).
 
-#### Se o `swagger.json` lista `/v1/reading-plans` mas o POST devolve 404
+#### Se o `swagger.json` lista `/v1/reading-plans` mas a chamada devolve 404
 
-O OpenAPI prova que a **aplicação que gera o Swagger** conhece a rota. Se ainda assim falha:
+O OpenAPI prova que o processo que gera o Swagger **descobriu** os controllers. **404 em rotas com `[Authorize]` (plano, `me/reading-progress`, etc.) com `Server: Kestrel` — inclusive com JWT válido no `Authorization`** não é “URL errada” nem falta de login: login e Bíblia funcionam porque são **`[AllowAnonymous]`**; o sintoma típico de **pipeline ASP.NET desatualizado** é: **rotas anónimas OK** (`GET /v1/bible/versions`, `GET /v1/community/feed`) e **todas as rotas só autenticadas = 404** (em vez de **401** sem token).  
+**Correção:** publicar o `Program.cs` que chama **`app.UseRouting()` antes de `UseAuthentication` / `UseAuthorization`** e **`app.MapControllers()`** (ver repo [BibleReader.Api.Vps](https://github.com/thiago-dmg/BibleReader.Api.Vps) — `master` recente). Depois: `dotnet publish`, substituir **toda** a pasta na VPS e reiniciar o serviço.
 
 1. **Mesma origem** — Swagger UI e o “Try it out” usam o mesmo host/porta do servidor Kestrel (`http://IP:5001`). O app Flutter deve usar a **mesma base** (`BIBLIA_API_BASE_URL`). Se houver **nginx/cPanel** na frente, compare o que responde na **5001 direta** vs **443**.
-2. **GET de sanidade** — `GET /v1/bible/versions` (anônimo). Se só o POST falhar, suspeite de **proxy** que altera método/path ou de **pipeline** antigo (redeploy sem `UseRouting()` antes da auth).
+2. **GET de sanidade** — `GET /v1/bible/versions` e `GET /v1/community/feed` (anónimos). Se estes forem **200** mas `GET /v1/reading-plans` (com Bearer) ou `GET /v1/me/reading-progress` forem **404**, trata-se quase sempre do **binário antigo** na VPS, não do proxy.
 3. **Diagnóstico na API** (commit recente):
    - `GET /v1/diagnostics/echo` — ative `Diagnostics:EnableEcho` em `appsettings` na VPS. Devolve `path`, `pathBase`, `host`, `scheme` e cabeçalhos `X-Forwarded-*` para ver o que o Kestrel recebe **depois** do rewrite `/api`.
    - `Diagnostics:LogIncomingPath` — loga cada linha `HTTP {Method} {Path}` (útil em journal/docker).
@@ -62,7 +63,7 @@ Nem todos os campos do exemplo do Swagger são obrigatórios. Para o preset do a
 - **`paceMode`**: `0` = capítulos por dia → **`chaptersPerDay` obrigatório** entre **1 e 50** (valor **0** no Swagger falha na validação com **400**, não 404).
 - **`targetEndDate` / `durationDays`**: só para `paceMode` 1 ou 2.
 - **`bibleVersionId`**: opcional (`null`).
-- **Swagger / Try it out**: rotas com cadeado exigem **Authorize** → colar `Bearer {token}` do login; sem token esperado é **401**; **404** com corpo vazio costumava indicar pipeline sem `UseRouting()` antes da auth (corrigido no servidor).
+- **Swagger / Try it out**: rotas com cadeado exigem **Authorize** → colar `Bearer {token}` do login; **sem token** o comportamento correto é **401**; **404** em **todas** as rotas autenticadas (mesmo com token válido) aponta para **deploy antigo** / pipeline sem `UseRouting()` antes da auth.
 
 ---
 
